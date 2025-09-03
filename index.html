@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>サイバーパンク 任務リスト</title>
+  <style>
+    body {
+      color: #f5f5f5;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+      background: #0d0d0d;
+      overflow: hidden;
+    }
+
+    /* --- The new layered background and animations for depth --- */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* Base layer: Low-opacity cyberpunk city image for depth */
+      background: url('https://images.unsplash.com/photo-1593030386616-e410a4e76c12?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover no-repeat;
+      background-size: cover;
+      opacity: 0.15; /* Subtly visible */
+      z-index: -2; /* Placed very far back */
+    }
+
+    /* Second layer: Animated glitch/rain effect */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 5px,
+          rgba(0, 255, 255, 0.05) 5px,
+          rgba(0, 255, 255, 0.05) 10px
+        ),
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 5px,
+          rgba(255, 0, 85, 0.05) 5px,
+          rgba(255, 0, 85, 0.05) 10px
+        );
+      animation: neonPulse 10s infinite alternate, scanlines 5s linear infinite;
+      opacity: 0.8;
+      z-index: -1;
+    }
+
+    @keyframes neonPulse {
+      0% { background-position: 0% 0%, 0% 0%; }
+      50% { background-position: 20% 20%, -20% 20%; }
+      100% { background-position: 0% 0%, 0% 0%; }
+    }
+
+    @keyframes scanlines {
+      from { background-position: 0 0; }
+      to { background-position: 0 100%; }
+    }
+    /* --- End background styling --- */
+
+    /* All other elements need to be positioned above the overlays */
+    .container, .task-input, h1 {
+        position: relative;
+        z-index: 2;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      color: #ff0055;
+      text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 40px #ff0055;
+      animation: flicker 2s infinite;
+    }
+
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+      }
+      20%, 24%, 55% {
+        opacity: 0.4;
+      }
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-around;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.2);
+    }
+
+    .list {
+      width: 30%;
+      padding: 15px;
+      background: rgba(20, 20, 20, 0.9);
+      border: 2px solid #ff0055;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #ff0055;
+    }
+
+    .list h2 {
+      text-align: center;
+      color: #00eaff;
+      text-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff;
+      animation: flicker 3s infinite;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ff0055;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-shadow: 0 0 5px #f5f5f5;
+      box-shadow: 0 0 5px #ff0055;
+    }
+
+    li:hover {
+      transform: scale(1.02);
+      background: rgba(255, 0, 85, 0.2);
+      box-shadow: 0 0 15px #ff0055;
+    }
+
+    .task-input {
+      display: flex;
+      justify-content: center;
+      margin: 20px;
+    }
+
+    input[type="text"] {
+      width: 60%;
+      padding: 10px;
+      border: 2px solid #00eaff;
+      background: black;
+      color: #f5f5f5;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    /* --- The new cyberpunk button styling --- */
+    .task-input button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      background: transparent; /* Transparent background */
+      border: 2px solid #00eaff; /* Neon border */
+      color: #f5f5f5;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      text-shadow: 0 0 5px #f5f5f5;
+      transition: 0.3s;
+      /* Glowing effect for the border */
+      box-shadow: 0 0 10px #00eaff, inset 0 0 10px #00eaff;
+    }
+
+    .task-input button:hover {
+      background: rgba(0, 234, 255, 0.1);
+      /* Pulsing neon effect on hover */
+      animation: pulse-glow 1s infinite alternate;
+    }
+
+    @keyframes pulse-glow {
+      from {
+        box-shadow: 0 0 10px #00eaff, inset 0 0 10px #00eaff;
+      }
+      to {
+        box-shadow: 0 0 20px #ff0055, 0 0 30px #ff0055, inset 0 0 20px #ff0055, inset 0 0 30px #ff0055;
+      }
+    }
+
+    /* --- End button styling --- */
+
+    .task-content {
+      flex-grow: 1;
+    }
+
+    .task-controls {
+      display: flex;
+      gap: 5px;
+    }
+
+    .control-btn {
+      background: #00eaff;
+      color: black;
+      border: none;
+      padding: 5px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: bold;
+      text-shadow: 0 0 5px black;
+      box-shadow: 0 0 10px #00eaff;
+    }
+
+    .control-btn:hover {
+      background: #ff0055;
+      box-shadow: 0 0 15px #ff0055;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ff0055;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      opacity: 0.7;
+      text-shadow: 0 0 5px #ff0055;
+    }
+
+    .delete-btn:hover {
+      opacity: 1;
+      text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055;
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>サイバーパンク 任務リスト</h1>
+
+  <div class="task-input">
+    <input type="text" id="taskInput" placeholder="新しい任務を追加 (Add new mission)...">
+    <button onclick="addTask()">追加</button>
+  </div>
+
+  <div class="container">
+    <div class="list" id="pending">
+      <h2>未完了 (Pending)</h2>
+      <ul id="pendingList"></ul>
+    </div>
+    <div class="list" id="ongoing">
+      <h2>進行中 (Ongoing)</h2>
+      <ul id="ongoingList"></ul>
+    </div>
+    <div class="list" id="completed">
+      <h2>完了 (Completed)</h2>
+      <ul id="completedList"></ul>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('taskInput').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        addTask();
+      }
+    });
+
+    function addTask() {
+      const input = document.getElementById('taskInput');
+      const taskText = input.value.trim();
+      if (taskText === "") return;
+
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="task-content">${taskText}</span>`;
+
+      const controlsDiv = document.createElement('div');
+      controlsDiv.classList.add('task-controls');
+      li.appendChild(controlsDiv);
+
+      const pendingBtn = document.createElement('button');
+      pendingBtn.textContent = '未';
+      pendingBtn.classList.add('control-btn');
+      pendingBtn.onclick = () => moveTask(li, 'pendingList');
+      controlsDiv.appendChild(pendingBtn);
+
+      const ongoingBtn = document.createElement('button');
+      ongoingBtn.textContent = '進';
+      ongoingBtn.classList.add('control-btn');
+      ongoingBtn.onclick = () => moveTask(li, 'ongoingList');
+      controlsDiv.appendChild(ongoingBtn);
+
+      const completedBtn = document.createElement('button');
+      completedBtn.textContent = '完';
+      completedBtn.classList.add('control-btn');
+      completedBtn.onclick = () => moveTask(li, 'completedList');
+      controlsDiv.appendChild(completedBtn);
+
+      const deleteBtn = document.createElement('span');
+      deleteBtn.textContent = 'X';
+      deleteBtn.classList.add('delete-btn');
+      deleteBtn.onclick = (event) => {
+        event.stopPropagation();
+        li.remove();
+      };
+      controlsDiv.appendChild(deleteBtn);
+
+      document.getElementById('pendingList').appendChild(li);
+      input.value = "";
+    }
+
+    function moveTask(task, targetListId) {
+      const targetList = document.getElementById(targetListId);
+      targetList.appendChild(task);
+    }
+  </script>
+</body>
+</html>
