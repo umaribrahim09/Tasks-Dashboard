@@ -262,60 +262,104 @@
     </div>
   </div>
 
-  <script>
-    document.getElementById('taskInput').addEventListener('keypress', function(event) {
-      if (event.key === 'Enter') {
-        addTask();
-      }
+  
+<script>
+  // Load tasks when page opens
+  window.onload = function() {
+    loadTasks();
+  };
+
+  document.getElementById('taskInput').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+      addTask();
+    }
+  });
+
+  function addTask() {
+    const input = document.getElementById('taskInput');
+    const taskText = input.value.trim();
+    if (taskText === "") return;
+
+    const li = createTaskElement(taskText);
+    document.getElementById('pendingList').appendChild(li);
+    input.value = "";
+
+    saveTasks();
+  }
+
+  function createTaskElement(taskText) {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="task-content">${taskText}</span>`;
+
+    const controlsDiv = document.createElement('div');
+    controlsDiv.classList.add('task-controls');
+    li.appendChild(controlsDiv);
+
+    const pendingBtn = document.createElement('button');
+    pendingBtn.textContent = '未';
+    pendingBtn.classList.add('control-btn');
+    pendingBtn.onclick = () => { moveTask(li, 'pendingList'); saveTasks(); };
+    controlsDiv.appendChild(pendingBtn);
+
+    const ongoingBtn = document.createElement('button');
+    ongoingBtn.textContent = '進';
+    ongoingBtn.classList.add('control-btn');
+    ongoingBtn.onclick = () => { moveTask(li, 'ongoingList'); saveTasks(); };
+    controlsDiv.appendChild(ongoingBtn);
+
+    const completedBtn = document.createElement('button');
+    completedBtn.textContent = '完';
+    completedBtn.classList.add('control-btn');
+    completedBtn.onclick = () => { moveTask(li, 'completedList'); saveTasks(); };
+    controlsDiv.appendChild(completedBtn);
+
+    const deleteBtn = document.createElement('span');
+    deleteBtn.textContent = 'X';
+    deleteBtn.classList.add('delete-btn');
+    deleteBtn.onclick = (event) => {
+      event.stopPropagation();
+      li.remove();
+      saveTasks();
+    };
+    controlsDiv.appendChild(deleteBtn);
+
+    return li;
+  }
+
+  function moveTask(task, targetListId) {
+    const targetList = document.getElementById(targetListId);
+    targetList.appendChild(task);
+  }
+
+  // Save tasks to localStorage
+  function saveTasks() {
+    const data = {
+      pending: getTasks('pendingList'),
+      ongoing: getTasks('ongoingList'),
+      completed: getTasks('completedList')
+    };
+    localStorage.setItem('tasksData', JSON.stringify(data));
+  }
+
+  function getTasks(listId) {
+    const list = document.getElementById(listId).children;
+    return Array.from(list).map(li => li.querySelector('.task-content').innerText);
+  }
+
+  // Load tasks from localStorage
+  function loadTasks() {
+    const data = JSON.parse(localStorage.getItem('tasksData')) || {pending:[], ongoing:[], completed:[]};
+    data.pending.forEach(task => {
+      document.getElementById('pendingList').appendChild(createTaskElement(task));
     });
+    data.ongoing.forEach(task => {
+      document.getElementById('ongoingList').appendChild(createTaskElement(task));
+    });
+    data.completed.forEach(task => {
+      document.getElementById('completedList').appendChild(createTaskElement(task));
+    });
+  }
+</script>
 
-    function addTask() {
-      const input = document.getElementById('taskInput');
-      const taskText = input.value.trim();
-      if (taskText === "") return;
-
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="task-content">${taskText}</span>`;
-
-      const controlsDiv = document.createElement('div');
-      controlsDiv.classList.add('task-controls');
-      li.appendChild(controlsDiv);
-
-      const pendingBtn = document.createElement('button');
-      pendingBtn.textContent = '未';
-      pendingBtn.classList.add('control-btn');
-      pendingBtn.onclick = () => moveTask(li, 'pendingList');
-      controlsDiv.appendChild(pendingBtn);
-
-      const ongoingBtn = document.createElement('button');
-      ongoingBtn.textContent = '進';
-      ongoingBtn.classList.add('control-btn');
-      ongoingBtn.onclick = () => moveTask(li, 'ongoingList');
-      controlsDiv.appendChild(ongoingBtn);
-
-      const completedBtn = document.createElement('button');
-      completedBtn.textContent = '完';
-      completedBtn.classList.add('control-btn');
-      completedBtn.onclick = () => moveTask(li, 'completedList');
-      controlsDiv.appendChild(completedBtn);
-
-      const deleteBtn = document.createElement('span');
-      deleteBtn.textContent = 'X';
-      deleteBtn.classList.add('delete-btn');
-      deleteBtn.onclick = (event) => {
-        event.stopPropagation();
-        li.remove();
-      };
-      controlsDiv.appendChild(deleteBtn);
-
-      document.getElementById('pendingList').appendChild(li);
-      input.value = "";
-    }
-
-    function moveTask(task, targetListId) {
-      const targetList = document.getElementById(targetListId);
-      targetList.appendChild(task);
-    }
-  </script>
 </body>
 </html>
